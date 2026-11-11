@@ -19,6 +19,14 @@ const INVENTED_CREDITS = [
 
 const key = (word) => word.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
 
+// Ruidos que Whisper a veces escribe como si fueran una palabra, sin corchetes.
+const SOUND_WORDS = new Set([
+  'laughter', 'laughs', 'laughing', 'applause', 'music', 'silence', 'cheering', 'sighs',
+  'risas', 'aplausos', 'música', 'musica', 'silencio',
+  'rires', 'applaudissements', 'musique',
+  'gelächter', 'applaus', 'musik',
+]);
+
 /** "gracias gracias gracias gracias…" → "gracias" (bucles de 4 o más repeticiones). */
 function collapseLoops(text) {
   let words = text.split(' ');
@@ -87,5 +95,8 @@ export function cleanTranscript(text) {
   if (!out) return '';
   if (INVENTED_CREDITS.some((pattern) => pattern.test(out))) return '';
   if (looksDegenerate(out)) return '';
+  // Solo nombra ruidos («Laughter.», «Applause, laughter»): no es habla.
+  const words = out.split(' ').map(key).filter(Boolean);
+  if (words.length > 0 && words.every((word) => SOUND_WORDS.has(word))) return '';
   return collapseLoops(out);
 }

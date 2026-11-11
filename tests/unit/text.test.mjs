@@ -63,3 +63,18 @@ test('una transcripción en bucle se descarta entera en vez de limpiarse', () =>
   assert.equal(cleanTranscript('i wneud i wneud i wneud i wneud i wneud i wneud i wneud'), '');
   assert.equal(cleanTranscript('thank you thank you thank you thank you thank you thank you'), '');
 });
+
+test('una transcripción que solo nombra un ruido (risas, aplausos, música) no es habla', () => {
+  // Whisper a veces escribe el ruido como si fuera una palabra, sin corchetes,
+  // y el traductor lo convierte en «Risas» en mitad de los subtítulos.
+  assert.equal(cleanTranscript('Laughter'), '');
+  assert.equal(cleanTranscript('Laughter.'), '');
+  assert.equal(cleanTranscript('Applause, laughter.'), '');
+  assert.equal(cleanTranscript('Music'), '');
+  assert.equal(cleanTranscript('Risas.'), '');
+});
+
+test('esas mismas palabras dentro de una frase normal se respetan', () => {
+  assert.equal(cleanTranscript('Laughter is the best medicine.'), 'Laughter is the best medicine.');
+  assert.equal(cleanTranscript('The music was too loud.'), 'The music was too loud.');
+});

@@ -1,0 +1,185 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f3f4f6;
+  --ink: #14171a;
+  --muted: #56606b;
+  --field: #ffffff;
+  --line: #c5cbd2;
+  --subtitle-yellow: #ffe14d;
+  --notice-bg: #e6e9ed;
+  --danger: #a3261d;
+
+  /* Variables que usa el formulario compartido. */
+  --lt-ui-text: var(--ink);
+  --lt-ui-muted: var(--muted);
+  --lt-ui-field: var(--field);
+  --lt-ui-line: var(--line);
+  --lt-ui-accent: var(--ink);
+  --lt-ui-focus: #1a5fd0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1f23;
+    --ink: #f1f3f5;
+    --muted: #a7b0b9;
+    --field: #282c31;
+    --line: #424951;
+    --notice-bg: #282c31;
+    --danger: #ff8a80;
+    --lt-ui-accent: var(--subtitle-yellow);
+    --lt-ui-focus: var(--subtitle-yellow);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 344px;
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 13px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* Un fotograma en negro con el subtítulo abajo, como en el vídeo. */
+.stage {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 112px;
+  padding: 0 12px 14px;
+  background: #000;
+  overflow: hidden;
+}
+
+.sample {
+  max-width: 100%;
+  margin: 0;
+  padding: 0.1em 0.45em 0.14em;
+  border-radius: 0.14em;
+  background: rgb(8 8 8 / var(--alpha, 0.75));
+  outline: 1px solid rgb(255 255 255 / 0.12); /* delimita la caja sobre el negro del fotograma */
+  color: var(--color, #fff);
+  font-family: var(--font, sans-serif);
+  font-size: calc(var(--size, 28px) * 0.6);
+  line-height: 1.32;
+  text-align: center;
+  text-wrap: balance;
+  text-shadow: 0 0 0.08em #000, 0 0.05em 0.14em rgb(0 0 0 / 0.9);
+}
+
+main {
+  display: grid;
+  gap: 12px;
+  padding: 14px 16px 16px;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+button:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--lt-ui-focus);
+  outline-offset: 2px;
+}
+
+.primary {
+  height: 40px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--subtitle-yellow);
+  color: #14171a;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.primary[data-running="true"] {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.secondary {
+  justify-self: start;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--field);
+  color: var(--ink);
+}
+
+.text-button {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.status {
+  margin: -4px 0 0;
+  color: var(--muted);
+  min-height: 1.45em;
+}
+
+.status[data-kind="error"] {
+  color: var(--danger);
+}
+
+.notice {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--notice-bg);
+}
+
+.notice p {
+  margin: 0;
+}
+
+#settings,
+#advanced {
+  display: block;
+}
+
+details {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+summary {
+  cursor: pointer;
+  color: var(--ink);
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+details[open] summary {
+  margin-bottom: 12px;
+}
+
+details[open] {
+  display: grid;
+  gap: 12px;
+}
+
+.hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+[hidden] {
+  display: none !important;
+}

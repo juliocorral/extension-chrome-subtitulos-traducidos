@@ -1,0 +1,17 @@
+{
+  "name": "traductor-subtitulos-en-vivo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Extensión de Chrome: subtítulos traducidos en tiempo real a partir del audio de la pestaña.",
+  "type": "module",
+  "scripts": {
+    "vendor": "node scripts/copy-vendor.mjs",
+    "icons": "node scripts/make-icons.mjs",
+    "test": "node --test tests/unit/",
+    "test:e2e": "node --test --test-concurrency=1 tests/e2e/extension.e2e.mjs"
+  },
+  "devDependencies": {
+    "@huggingface/transformers": "^4.3.2",
+    "puppeteer-core": "^25.17.0"
+  }
+}

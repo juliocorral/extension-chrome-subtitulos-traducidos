@@ -1,0 +1,4 @@
+node_modules/
+.DS_Store
+# Librerías de terceros copiadas de node_modules con `npm run vendor`.
+extension/vendor/

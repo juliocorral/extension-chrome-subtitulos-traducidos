@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Página de prueba con audio</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #2b3440; color: #dfe5ec; font: 16px system-ui; }
+      main { padding: 24px; }
+      #player:fullscreen { background: #101820; padding: 24px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p>Página de prueba: reproduce una locución para que la extensión la subtitule.</p>
+      <div id="player">
+        <audio id="speech" controls preload="auto"></audio>
+        <button id="fullscreen" type="button">Pantalla completa</button>
+      </div>
+    </main>
+    <script>
+      // ?audio=en|fr elige la locución; ?src=URL reproduce cualquier otro audio.
+      const params = new URLSearchParams(location.search);
+      document.getElementById('speech').src = params.get('src') ?? `${params.get('audio') ?? 'en'}.wav`;
+      document.getElementById('fullscreen').addEventListener('click', () => {
+        document.getElementById('player').requestFullscreen();
+      });
+    </script>
+  </body>
+</html>

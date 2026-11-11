@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Subtítulos traducidos en vivo</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <!-- La vista previa enseña el subtítulo con el aspecto elegido. -->
+    <div class="stage" role="img" aria-label="Vista previa de los subtítulos">
+      <p class="sample" id="sample" dir="auto"></p>
+    </div>
+
+    <main>
+      <button type="button" id="toggle" class="primary" disabled>Subtitular esta pestaña</button>
+      <button type="button" id="stop-other" class="text-button" hidden>Detener los subtítulos de la otra pestaña</button>
+      <p id="status" class="status" role="status"></p>
+
+      <div id="notice" class="notice" hidden>
+        <p id="notice-text"></p>
+        <button type="button" id="notice-action" class="secondary" hidden></button>
+      </div>
+
+      <div id="settings"></div>
+
+      <details id="more">
+        <summary>Más opciones</summary>
+        <div id="advanced"></div>
+        <button type="button" id="reset-position" class="secondary">Devolver la barra a su sitio</button>
+        <p class="hint" id="engine-hint"></p>
+        <p class="hint" id="shortcut-hint"></p>
+      </details>
+    </main>
+
+    <script src="../shared/config.js"></script>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

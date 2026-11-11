@@ -136,6 +136,34 @@ test('si los 429 se repiten, la espera se alarga', async () => {
   assert.equal(calls.length, 3);
 });
 
+test('una página de bloqueo en vez de la traducción también hace que deje de preguntar', async () => {
+  // Visto de verdad: tras muchas peticiones Google ya no responde 429, sino que
+  // redirige a su página de «tráfico inusual», que es HTML con estado 200.
+  const blockPage = {
+    ok: true,
+    status: 200,
+    redirected: true,
+    json: async () => {
+      throw new SyntaxError('Unexpected token <');
+    },
+  };
+  const { engine, clock, calls } = politeGoogle((n) => (n === 1 ? blockPage : jsonResponse(GOOGLE_FIXTURE)));
+  await assert.rejects(engine.translate('One.', 'en', 'es'), { code: 'rate-limited' });
+  clock.now += 5_000;
+  await assert.rejects(engine.translate('Two.', 'en', 'es'), { code: 'rate-limited' });
+  assert.equal(calls.length, 1, 'durante la espera no debe salir ninguna petición');
+  clock.now += 26_000;
+  assert.equal((await engine.translate('Three.', 'en', 'es')).text, 'Hola mundo. ¿Cómo estás?');
+});
+
+test('una respuesta que no es JSON se trata como bloqueo, no como traducción', async () => {
+  const html = { ok: true, status: 200, redirected: false, json: async () => { throw new SyntaxError('Unexpected token <'); } };
+  const { engine, calls } = politeGoogle(() => html);
+  await assert.rejects(engine.translate('One.', 'en', 'es'), { code: 'rate-limited' });
+  await assert.rejects(engine.translate('Two.', 'en', 'es'), { code: 'rate-limited' });
+  assert.equal(calls.length, 1);
+});
+
 // ---------- Traductor integrado de Chrome ----------
 
 /** Doble de la API `Translator` de Chrome. */

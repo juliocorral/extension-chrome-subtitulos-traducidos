@@ -42,6 +42,13 @@ export function createGoogleEngine(
   const saturated = () =>
     coded('rate-limited', 'El traductor de Google respondió 429: demasiadas peticiones. Se reintentará en un rato.');
 
+  /** Google no quiere más peticiones: se le deja en paz un rato, más largo cada vez. */
+  function backOff() {
+    blockedUntil = now() + backoff;
+    backoff = Math.min(backoff * 2, maxBackoffMs);
+    return saturated();
+  }
+
   async function request(text, source, target) {
     busy = true;
     lastStart = now();
@@ -60,14 +67,18 @@ export function createGoogleEngine(
         body: new URLSearchParams({ q: text }).toString(),
         signal: AbortSignal.timeout(timeoutMs),
       });
-      if (response.status === 429) {
-        blockedUntil = now() + backoff;
-        backoff = Math.min(backoff * 2, maxBackoffMs);
-        throw saturated();
-      }
+      // Cuando se cansa, Google responde 429 o redirige a su página de
+      // «tráfico inusual» (HTML con estado 200): las dos cosas significan lo mismo.
+      if (response.status === 429 || response.redirected) throw backOff();
       if (!response.ok) throw coded('http', `El traductor de Google respondió ${response.status}`);
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        throw backOff();
+      }
       backoff = backoffMs;
-      return parseGoogleResponse(await response.json());
+      return parseGoogleResponse(data);
     } finally {
       busy = false;
     }

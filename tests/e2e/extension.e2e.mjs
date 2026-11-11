@@ -507,7 +507,8 @@ test('los subtítulos se escriben palabra a palabra y las líneas suben sin reco
 
   assert.ok(additions.length >= 12, `solo se han escrito ${additions.length} palabras`);
   const gaps = additions.slice(1).map((at, i) => at - additions[i]);
-  assert.ok(Math.min(...gaps) >= 30, `dos palabras han salido con solo ${Math.round(Math.min(...gaps))} ms de diferencia`);
+  // El ritmo más rápido es de 80 ms por palabra; se deja margen para el reloj del navegador.
+  assert.ok(Math.min(...gaps) >= 60, `dos palabras han salido con solo ${Math.round(Math.min(...gaps))} ms de diferencia`);
   assert.ok(mostLines <= 2, `ha llegado a haber ${mostLines} líneas a la vez`);
   assert.ok(seen.size >= 3, 'el texto no ha llegado a subir de línea');
 

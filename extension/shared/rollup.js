@@ -64,9 +64,14 @@
     }
   }
 
-  /** Milisegundos entre una palabra y la siguiente según cuántas esperan. */
+  /**
+   * Milisegundos entre una palabra y la siguiente según cuántas esperan. Con
+   * pocas, 150 ms; si se acumulan se acelera para no quedarse atrás, pero
+   * nunca por debajo de 80 ms: más rápido, a quien lee le parece que salen
+   * varias a la vez.
+   */
   function revealDelay(waiting) {
-    return Math.min(120, Math.max(40, Math.round(480 / Math.max(1, waiting))));
+    return Math.min(150, Math.max(80, Math.round(960 / Math.max(1, waiting))));
   }
 
   // Con la pestaña en segundo plano Chrome frena los temporizadores y las

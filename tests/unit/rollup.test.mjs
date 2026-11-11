@@ -105,11 +105,13 @@ test('al cambiar el ancho o el número de líneas se recoloca el texto visible',
 // ---------- aparición palabra a palabra ----------
 
 test('el ritmo de aparición se acelera cuando hay muchas palabras esperando', () => {
-  assert.equal(revealDelay(1), 120);
-  assert.equal(revealDelay(4), 120);
-  assert.equal(revealDelay(6), 80);
-  assert.equal(revealDelay(12), 40);
-  assert.equal(revealDelay(60), 40, 'pero nunca tan rápido que parezcan salir a la vez');
+  assert.equal(revealDelay(1), 150);
+  assert.equal(revealDelay(6), 150);
+  assert.equal(revealDelay(8), 120);
+  assert.equal(revealDelay(12), 80);
+  // Medido en YouTube: con 40 ms entre palabras, una de cada diez salía a la
+  // vez que la anterior a ojos de quien lee. Nunca menos de 80 ms.
+  assert.equal(revealDelay(60), 80, 'pero nunca tan rápido que parezcan salir a la vez');
 });
 
 /** Reloj de pega: los temporizadores solo saltan al avanzar el tiempo a mano. */
@@ -145,11 +147,11 @@ test('las palabras que llegan juntas se muestran de una en una, en orden', () =>
   const revealer = new Revealer({ onWord: (word) => shown.push(word.text), ...clock });
   revealer.enqueue([{ text: 'Hola' }, { text: 'a' }, { text: 'todos' }]);
   assert.deepEqual(shown, ['Hola'], 'la primera sale al momento');
-  clock.advance(119);
+  clock.advance(149);
   assert.deepEqual(shown, ['Hola']);
   clock.advance(1);
   assert.deepEqual(shown, ['Hola', 'a']);
-  clock.advance(120);
+  clock.advance(150);
   assert.deepEqual(shown, ['Hola', 'a', 'todos']);
 });
 
@@ -181,7 +183,7 @@ test('dos palabras nunca salen pegadas aunque lleguen por separado', () => {
   clock.advance(10);
   revealer.enqueue([{ text: 'dos' }]);
   assert.deepEqual(shown, ['uno'], 'la segunda espera su turno');
-  clock.advance(110);
+  clock.advance(140);
   assert.deepEqual(shown, ['uno', 'dos']);
 });
 

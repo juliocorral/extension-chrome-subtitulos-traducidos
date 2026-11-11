@@ -212,10 +212,26 @@ test('un par de idiomas que Chrome no ofrece se declara no compatible', async ()
 test('mientras el paquete de idioma se descarga no bloquea, y funciona al terminar', async () => {
   const api = fakeTranslatorApi({ availability: 'downloadable', createDelay: 80 });
   const engine = createChromeEngine(api, { waitMs: 10 });
-  await assert.rejects(engine.translate('hello', 'en', 'es'), { code: 'not-ready' });
+  // Se está creando (cargando o descargando): no es lo mismo que no poder.
+  await assert.rejects(engine.translate('hello', 'en', 'es'), { code: 'loading' });
+  await assert.rejects(engine.translate('hello', 'en', 'es'), { code: 'loading' });
   await sleep(120);
   assert.deepEqual(await engine.translate('hello', 'en', 'es'), { text: 'en>es:hello' });
   assert.deepEqual(api.created, ['en>es'], 'no debe lanzar descargas duplicadas');
+});
+
+test('una frase ya cerrada espera a que el traductor termine de cargarse', async () => {
+  // Al empezar, la primera frase puede cerrarse antes de que el traductor
+  // esté listo; es preferible esperarlo un momento a mostrarla sin traducir.
+  const api = fakeTranslatorApi({ availability: 'available', createDelay: 80 });
+  const engine = createChromeEngine(api, { waitMs: 10 });
+  assert.deepEqual(await engine.translate('hello.', 'en', 'es', { wait: true }), { text: 'en>es:hello.' });
+});
+
+test('esa espera tiene un límite: si la carga se alarga, no se queda colgada', async () => {
+  const api = fakeTranslatorApi({ availability: 'downloadable', createDelay: 500 });
+  const engine = createChromeEngine(api, { waitMs: 10, loadingMs: 60 });
+  await assert.rejects(engine.translate('hello.', 'en', 'es', { wait: true }), { code: 'not-ready' });
 });
 
 test('si crear el traductor falla, se reintenta más adelante', async () => {

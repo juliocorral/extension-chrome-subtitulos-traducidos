@@ -43,17 +43,25 @@ export class TranslationService {
       return { text: translated, engine: 'google', ...extra };
     };
     const viaChrome = async () => {
-      const { text: translated } = await this.chrome.translate(text, source, target);
+      // Una frase ya cerrada espera a que el traductor local termine de
+      // cargarse; una provisional no (ya vendrá la siguiente).
+      const { text: translated } = await this.chrome.translate(text, source, target, { wait: final });
       return { text: translated, engine: 'chrome' };
     };
 
     if (this.mode === 'google') return viaGoogle();
-    if (this.mode === 'chrome') return viaChrome();
     // El traductor local necesita saber el idioma de origen.
-    if (!source) return viaGoogle();
+    if (this.mode === 'auto' && !source) return viaGoogle();
     try {
       return await viaChrome();
     } catch (err) {
+      // El traductor local se está cargando (un par de segundos al empezar):
+      // una versión provisional puede esperar a la siguiente en vez de
+      // traducirse por otro camino o salir sin traducir.
+      if (err?.code === 'loading' && !final) {
+        throw Object.assign(new Error('El traductor local se está cargando'), { code: 'skipped' });
+      }
+      if (this.mode === 'chrome') throw err;
       return viaGoogle({ fallback: err?.code ?? 'error' });
     }
   }

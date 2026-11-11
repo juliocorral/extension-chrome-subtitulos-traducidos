@@ -120,3 +120,41 @@ test('una versión provisional que Google se salta no se guarda como traducida',
   const result = await service.translate('Hello', { source: 'en', target: 'es', final: true });
   assert.equal(result.text, '[google en>es] Hello');
 });
+
+// Al empezar, el traductor local tarda uno o dos segundos en cargarse. Si en
+// ese rato se recurriera a Google (o, estando Google saturado, se mostrara el
+// original), las primeras palabras saldrían por otro camino o sin traducir.
+
+test('mientras el traductor local se carga, las versiones provisionales esperan en vez de ir a Google', async () => {
+  const chrome = engine('chrome', { failWith: 'loading' });
+  const google = engine('google');
+  const service = new TranslationService({ chrome, google, mode: 'auto' });
+  await assert.rejects(service.translate('Hello', { source: 'en', target: 'es', final: false }), { code: 'skipped' });
+  assert.equal(google.calls.length, 0);
+  // En cuanto está listo, traduce él.
+  chrome.failWith = null;
+  const result = await service.translate('Hello there', { source: 'en', target: 'es', final: false });
+  assert.equal(result.engine, 'chrome');
+});
+
+test('al traductor local se le pide que espere a cargarse solo para las versiones finales', async () => {
+  const chrome = engine('chrome');
+  const service = new TranslationService({ chrome, google: engine('google'), mode: 'auto' });
+  await service.translate('Hello', { source: 'en', target: 'es', final: false });
+  await service.translate('Hello there.', { source: 'en', target: 'es', final: true });
+  assert.deepEqual(chrome.calls.map((c) => c.wait), [false, true]);
+});
+
+test('si ni esperando está listo el traductor local, una versión final va a Google', async () => {
+  const chrome = engine('chrome', { failWith: 'loading' });
+  const google = engine('google');
+  const service = new TranslationService({ chrome, google, mode: 'auto' });
+  const result = await service.translate('Hello.', { source: 'en', target: 'es', final: true });
+  assert.equal(result.engine, 'google');
+});
+
+test('en modo solo local, mientras carga, las provisionales también esperan en vez de dar error', async () => {
+  const chrome = engine('chrome', { failWith: 'loading' });
+  const service = new TranslationService({ chrome, google: engine('google'), mode: 'chrome' });
+  await assert.rejects(service.translate('Hello', { source: 'en', target: 'es', final: false }), { code: 'skipped' });
+});
